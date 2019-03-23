@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">send_result</string>
+    <string name="title_activity_name">NameActivity</string>
+    <string name="title_activity_view">ViewActivity</string>
+</resources>
