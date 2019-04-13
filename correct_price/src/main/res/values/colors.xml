@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#D81B60</color>
+    <color name="colorOk">#8DE99F</color>
+    <color name="colorDeny">#EE5200</color>
+    <color name="colorUpDigit">#F3AA8A</color>
+    <color name="colorDownDigit">#81675A</color>
+    <color name="colorGrey">#E9E6E5</color>
+    <color name="colorRemoveDigit">#070606</color>
+</resources>
