@@ -221,11 +221,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    private ArrayList<Integer> digits(Integer allDigits){
+    private ArrayList<Integer> separateDigits(float price){
+        double base1=price%1;//Give you 0.75 as remainder
+        double base01=base1%0.1;//Give you 0.75 as remainder
+
         ArrayList<Integer> result = new ArrayList<Integer>();
-        while (allDigits > 0) {
-            result.add( allDigits % 10);
-            allDigits = allDigits / 10;
+
+        int rubles=(int)price;
+        result.add( (int)(base01 * 100));
+        result.add( (int)(base1 * 10));
+        while (rubles > 0) {
+            result.add( rubles % 10);
+            rubles = rubles / 10;
         }
         return result;
     }
@@ -242,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         digitWithAttr.getRemoveDigitButton().setOnClickListener(this);
     }
 
-    public void createPriceInConstraintLayout(Pair<Float, Rect> priceAndPos){
+    public void createPriceInConstraintLayout(ConstraintLayout layout, Pair<Float, Rect> priceAndPos){
         /*Тут есть сложность, что высота считается для цифры, а две кнопки наверху отнимаются от этой высоты, соответственно высота должна быть не менее 50
         * Конечно, потом это стоит переделать на более удобный вариант*/
 
@@ -256,23 +263,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int textWidth = 60;
         int marginLeft = 50;
 
-        DigitWithAttr firstDigit = drawDigitWithAttr(layout, 1, textWidth, marginLeft, 100);
-        drawElements.add(firstDigit);
-        setDigitOnClickListen(firstDigit);
+        ConstraintLayout digitLayout = new ConstraintLayout(this);
+        digitLayout.setId(index++);
+        digitLayout.setBackgroundColor(Color.WHITE);
+        ConstraintSet constraintSet = new ConstraintSet();
+        layout.addView(digitLayout);
+        constraintSet.clone(layout);
+        setViewMargin(constraintSet, layout.getId(), digitLayout.getId(), marginLeft, 50, 0, 0);
+        constraintSet.applyTo(layout);
 
-        marginLeft += firstDigit.maxWidth();
-        DigitWithAttr secondDigit = drawDigitWithAttr(layout, 0, textWidth, marginLeft, 100);
-        drawElements.add(secondDigit);
-        setDigitOnClickListen(secondDigit);
 
-        marginLeft += secondDigit.maxWidth() - TEXT_HARD_BUFFER_PIXELS + TEXT_SOFT_BUFFER_PIXELS;
-        Point point = drawPoint(layout, textWidth, marginLeft, 100);
+        ArrayList<Integer> separateDigits = separateDigits(price);
+
+        if(separateDigits.size() < 3){
+            throw new RuntimeException("Wrong digit separating ");
+        }
+
+        for (int i = separateDigits.size() - 1; i > 1; --i){
+            boolean first = i + 1 == separateDigits.size();
+            marginLeft = first ? marginLeft: marginLeft + drawElements.get(drawElements.size() - 1).maxWidth() ;
+            DigitWithAttr digit = drawDigitWithAttr(digitLayout, separateDigits.get(i), textWidth, marginLeft, 50);
+            drawElements.add(digit);
+            setDigitOnClickListen(digit);
+        }
+
+        marginLeft += drawElements.get(1).maxWidth() - TEXT_HARD_BUFFER_PIXELS + TEXT_SOFT_BUFFER_PIXELS;
+        Point point = drawPoint(digitLayout, textWidth, marginLeft, 50);
         drawElements.add(point);
 
-        marginLeft += secondDigit.maxWidth();
-        DigitWithAttr thirdDigit = drawDigitWithAttr(layout, 5, textWidth, marginLeft, 100);
-        drawElements.add(thirdDigit);
-        setDigitOnClickListen(thirdDigit);
+        for (int i = 1; i >= 0; --i) {
+            marginLeft += drawElements.get(drawElements.size() - 1).maxWidth() ;
+            DigitWithAttr digit = drawDigitWithAttr(digitLayout, separateDigits.get(i), textWidth, marginLeft, 50);
+            drawElements.add(digit);
+            setDigitOnClickListen(digit);
+        }
     }
 
     @Override
@@ -282,8 +306,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         layout = (ConstraintLayout) findViewById(R.id.constraintLayout);
 
-        Pair<Float, Rect> pair = new Pair<Float, Rect>(102.5f, new Rect(100, 50, 0, 0));
-
+        Pair<Float, Rect> priceAndPos = new Pair<Float, Rect>(102.53f, new Rect(100, 50, 0, 0));
+        createPriceInConstraintLayout(layout, priceAndPos);
 
     }
 
@@ -307,7 +331,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             else if(digitWithAttr.getDownButton().getId() == v.getId()){
                 Integer digit = Integer.valueOf(digitWithAttr.getDigitView().getText().toString());
-                digit = (digit - 1) % 10;
+                digit = digit == 0 ? 9 : digit - 1;
                 digitWithAttr.getDigitView().setText(digit.toString());
             }
             else if(digitWithAttr.getRemoveDigitButton().getId() == v.getId()){
