@@ -6,6 +6,7 @@ import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.util.TypedValue;
 import android.view.View;
@@ -27,35 +28,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     final int TEXT_SOFT_BUFFER_PIXELS = 15;
     final int TEXT_HARD_BUFFER_PIXELS = 30;
 
-    ArrayList<DrawElemnt> drawElements = new ArrayList<DrawElemnt>();
+    DisplayMetrics displayMetrics;
+
+    ArrayList<DrawElement> drawElements = new ArrayList<DrawElement>();
 
     private void setViewMargin(ConstraintSet constraintSet, int layoutId, int viewId,
                                int marginLeft, int marginTop, int marginRight, int marginBottom){
 
 
-        if(marginLeft > 0){
+        if(marginLeft != -1){
             constraintSet.connect(viewId, ConstraintSet.LEFT, layoutId, ConstraintSet.LEFT, marginLeft);
         }
-        if(marginTop > 0){
+        if(marginTop != -1){
             constraintSet.connect(viewId, ConstraintSet.TOP, layoutId, ConstraintSet.TOP, marginTop);
         }
-        if(marginRight > 0){
+        if(marginRight != -1){
             constraintSet.connect(viewId, ConstraintSet.RIGHT, layoutId, ConstraintSet.RIGHT, marginRight);
         }
-        if(marginBottom > 0){
+        if(marginBottom != -1){
             constraintSet.connect(viewId, ConstraintSet.BOTTOM, layoutId, ConstraintSet.BOTTOM, marginBottom);
         }
     }
 
-    protected abstract class DrawElemnt {
+    protected abstract class DrawElement {
         public abstract Integer maxWidth();
         public abstract Boolean hasIndex(int index);
         public abstract Integer getMarginLeft();
         public abstract void setMarginLeft(Integer marginLeft, ConstraintSet constraintSet, ConstraintLayout layout);
-        //public abstract void swapElement(DrawElemnt drawElemnt);
+        //public abstract void swapElement(DrawElement drawElemnt);
     }
 
-    private class Point extends DrawElemnt {
+    private class Point extends DrawElement {
         public Point(TextView pointView, Integer marginLeft){
             point_ = pointView;
             marginLeft_ = marginLeft;
@@ -79,21 +82,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void setMarginLeft(Integer marginLeft, ConstraintSet constraintSet, ConstraintLayout layout) {
             marginLeft_ = marginLeft;
-            setViewMargin(constraintSet, layout.getId(), point_.getId(), marginLeft_, 0,0,0);
+            setViewMargin(constraintSet, layout.getId(), point_.getId(), marginLeft_, -1,-1,-1);
         }
 
         public TextView getInformationView(){ return point_; }
-
-        //@Override
-        //public void swapElement(DrawElemnt drawElemnt) {
-       //
-        //}
 
         private TextView point_;
         private Integer marginLeft_;
     }
 
-    private class DigitWithAttr extends DrawElemnt{
+    private class DigitWithAttr extends DrawElement {
         public DigitWithAttr(TextView digit, Button upBtn, Button downBtn, Button removeBtn, Integer marginLeft){
             hashSet_ = new HashSet<Integer>();
             digit_ = digit; hashSet_.add(digit_.getId());
@@ -122,10 +120,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void setMarginLeft(Integer marginLeft, ConstraintSet constraintSet, ConstraintLayout layout) {
             marginLeft_ = marginLeft;
-            setViewMargin(constraintSet, layout.getId(), digit_.getId(), marginLeft_, 0,0,0);
-            setViewMargin(constraintSet, layout.getId(), upBtn_.getId(), marginLeft_, 0,0,0);
-            setViewMargin(constraintSet, layout.getId(), downBtn_.getId(), marginLeft_, 0,0,0);
-            setViewMargin(constraintSet, layout.getId(), removeBtn_.getId(), marginLeft_, 0,0,0);
+            setViewMargin(constraintSet, layout.getId(), digit_.getId(), marginLeft_, -1,-1,-1);
+            setViewMargin(constraintSet, layout.getId(), upBtn_.getId(), marginLeft_, -1,-1,-1);
+            setViewMargin(constraintSet, layout.getId(), downBtn_.getId(), marginLeft_, -1,-1,-1);
+            setViewMargin(constraintSet, layout.getId(), removeBtn_.getId(), marginLeft_, -1,-1,-1);
         }
 
         public final Integer maxWidth(){
@@ -149,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         constraintSet.clone(layout);
 
         //добавим число соотвествующего размера
-        setViewMargin(constraintSet, layout.getId(), viewPoint.getId(), marginLeft, marginTop, 0, 0);
+        setViewMargin(constraintSet, layout.getId(), viewPoint.getId(), marginLeft, marginTop, -1, -1);
         constraintSet.constrainWidth(viewPoint.getId(), width);
 
         constraintSet.applyTo(layout);
@@ -175,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         constraintSet.clone(layout);
 
         //добавим число соотвествующего размера
-        setViewMargin(constraintSet, layout.getId(), viewDigit.getId(), marginLeft, marginTop, 0, 0);
+        setViewMargin(constraintSet, layout.getId(), viewDigit.getId(), marginLeft, marginTop, -1, -1);
         int expectedHeight = width * 2;
         constraintSet.constrainWidth(viewDigit.getId(), width);
 
@@ -188,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         buttonUpDigit.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         layout.addView(buttonUpDigit);
         int upDigitMarginTop = marginTop - CHANGE_DIGIT_BUTTON_HEIGHT;
-        setViewMargin(constraintSet, layout.getId(), buttonUpDigit.getId(), marginLeft, upDigitMarginTop, 0, 0);
+        setViewMargin(constraintSet, layout.getId(), buttonUpDigit.getId(), marginLeft, upDigitMarginTop, -1, -1);
         constraintSet.constrainWidth(buttonUpDigit.getId(), CHANGE_DIGIT_BUTTON_WIDTH);
         constraintSet.constrainHeight(buttonUpDigit.getId(), CHANGE_DIGIT_BUTTON_HEIGHT);
 
@@ -199,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         buttonDownDigit.setBackgroundColor(getResources().getColor(R.color.colorGrey));
         layout.addView(buttonDownDigit);
         int downDigitMarginTop = marginTop + viewDigit.getMeasuredHeight();
-        setViewMargin(constraintSet, layout.getId(), buttonDownDigit.getId(), marginLeft, downDigitMarginTop, 0, 0);
+        setViewMargin(constraintSet, layout.getId(), buttonDownDigit.getId(), marginLeft, downDigitMarginTop, -1, -1);
         buttonDownDigit.setWidth(width);
         constraintSet.constrainWidth(buttonDownDigit.getId(), CHANGE_DIGIT_BUTTON_WIDTH);
         constraintSet.constrainHeight(buttonDownDigit.getId(), CHANGE_DIGIT_BUTTON_HEIGHT);
@@ -211,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         buttonRemoveDigit.setBackgroundColor(getResources().getColor(R.color.colorRemoveDigit));
         layout.addView(buttonRemoveDigit);
         int removeButtonMarginTop = marginTop - 2*CHANGE_DIGIT_BUTTON_HEIGHT - SPACE_BETWEEN_BUTTONS;
-        setViewMargin(constraintSet, layout.getId(), buttonRemoveDigit.getId(), marginLeft, removeButtonMarginTop, 0, 0);
+        setViewMargin(constraintSet, layout.getId(), buttonRemoveDigit.getId(), marginLeft, removeButtonMarginTop, -1, -1);
         buttonRemoveDigit.setWidth(width);
         constraintSet.constrainWidth(buttonRemoveDigit.getId(), CHANGE_DIGIT_BUTTON_WIDTH);
         constraintSet.constrainHeight(buttonRemoveDigit.getId(), CHANGE_DIGIT_BUTTON_HEIGHT);
@@ -260,40 +258,62 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Float price = priceAndPos.first;
         Rect rect = priceAndPos.second;
 
-        int textWidth = 60;
-        int marginLeft = 50;
+        final int digitWidth = 40;
+        final int minTextWidth = max(CHANGE_DIGIT_BUTTON_WIDTH, digitWidth) + 6;
+        final int minTextHeight = minTextWidth * 3;
+        final int minElementHeight = minTextHeight + 3 * CHANGE_DIGIT_BUTTON_HEIGHT  + 5 * SPACE_BETWEEN_BUTTONS;
+        ArrayList<Integer> separateDigits = separateDigits(price);
+        final int minLayoutWidth = (separateDigits.size() + 1) * minTextWidth;
+        final int minLayoutHeight = minElementHeight;
+
+        final int availableHeight  = layout.getHeight();
+        final int availableWidth = layout.getWidth();
+
+        int marginLeft = rect.left;
+        int marginRight = rect.right;
+        int marginTop = rect.top;
+        int marginBottom = rect.bottom;
+
+        final int digitLayoutWidth = max(minLayoutWidth, availableWidth - marginLeft - marginRight);
+        final int digitLayoutHeight = max(minLayoutHeight, availableHeight - marginTop - marginBottom);
 
         ConstraintLayout digitLayout = new ConstraintLayout(this);
         digitLayout.setId(index++);
         digitLayout.setBackgroundColor(Color.WHITE);
+
+
         ConstraintSet constraintSet = new ConstraintSet();
         layout.addView(digitLayout);
+
+        ConstraintLayout.LayoutParams lp = (ConstraintLayout.LayoutParams) digitLayout.getLayoutParams();
+        lp.height = digitLayoutHeight;
+        lp.width = digitLayoutWidth;
+        layout.setLayoutParams(lp);
+
         constraintSet.clone(layout);
-        setViewMargin(constraintSet, layout.getId(), digitLayout.getId(), marginLeft, 50, 0, 0);
+        setViewMargin(constraintSet, layout.getId(), digitLayout.getId(), marginLeft, marginTop, -1, -1);
         constraintSet.applyTo(layout);
-
-
-        ArrayList<Integer> separateDigits = separateDigits(price);
 
         if(separateDigits.size() < 3){
             throw new RuntimeException("Wrong digit separating ");
         }
 
+        int digitMarginLeft = 8;
         for (int i = separateDigits.size() - 1; i > 1; --i){
             boolean first = i + 1 == separateDigits.size();
-            marginLeft = first ? marginLeft: marginLeft + drawElements.get(drawElements.size() - 1).maxWidth() ;
-            DigitWithAttr digit = drawDigitWithAttr(digitLayout, separateDigits.get(i), textWidth, marginLeft, 50);
+            digitMarginLeft = first ? digitMarginLeft: digitMarginLeft + drawElements.get(drawElements.size() - 1).maxWidth() ;
+            DigitWithAttr digit = drawDigitWithAttr(digitLayout, separateDigits.get(i), digitWidth, digitMarginLeft, 50);
             drawElements.add(digit);
             setDigitOnClickListen(digit);
         }
 
-        marginLeft += drawElements.get(1).maxWidth() - TEXT_HARD_BUFFER_PIXELS + TEXT_SOFT_BUFFER_PIXELS;
-        Point point = drawPoint(digitLayout, textWidth, marginLeft, 50);
+        digitMarginLeft += drawElements.get(1).maxWidth();
+        Point point = drawPoint(digitLayout, digitWidth, digitMarginLeft, 50);
         drawElements.add(point);
 
         for (int i = 1; i >= 0; --i) {
-            marginLeft += drawElements.get(drawElements.size() - 1).maxWidth() ;
-            DigitWithAttr digit = drawDigitWithAttr(digitLayout, separateDigits.get(i), textWidth, marginLeft, 50);
+            digitMarginLeft += drawElements.get(drawElements.size() - 1).maxWidth() ;
+            DigitWithAttr digit = drawDigitWithAttr(digitLayout, separateDigits.get(i), digitWidth, digitMarginLeft, 50);
             drawElements.add(digit);
             setDigitOnClickListen(digit);
         }
@@ -304,9 +324,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        displayMetrics = new DisplayMetrics();
+
         layout = (ConstraintLayout) findViewById(R.id.constraintLayout);
 
-        Pair<Float, Rect> priceAndPos = new Pair<Float, Rect>(102.53f, new Rect(100, 50, 0, 0));
+        Pair<Float, Rect> priceAndPos = new Pair<Float, Rect>(102.53f, new Rect(100, 100, 100,100));
         createPriceInConstraintLayout(layout, priceAndPos);
 
     }
@@ -316,7 +338,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         int i = 0;
         for (; i < drawElements.size(); i++) {
-            DrawElemnt element = drawElements.get(i);
+            DrawElement element = drawElements.get(i);
             if(element.hasIndex(v.getId())){
                 break;
             }
@@ -336,17 +358,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             else if(digitWithAttr.getRemoveDigitButton().getId() == v.getId()){
                 ConstraintSet constraintSet = new ConstraintSet();
-                constraintSet.clone(layout);
+                ConstraintLayout parentLayout = (ConstraintLayout) digitWithAttr.getRemoveDigitButton().getParent();
+                constraintSet.clone(parentLayout);
                 for (int j = drawElements.size() - 1; j > i; j--) {
                     Integer prevMarginLeft = drawElements.get(j - 1).getMarginLeft();
-                    drawElements.get(j).setMarginLeft(prevMarginLeft, constraintSet, layout);
+                    drawElements.get(j).setMarginLeft(prevMarginLeft, constraintSet, parentLayout);
                 }
-                constraintSet.applyTo(layout);
+                constraintSet.applyTo(parentLayout);
 
-                layout.removeView(digitWithAttr.getDigitView());
-                layout.removeView(digitWithAttr.getUpButton());
-                layout.removeView(digitWithAttr.getDownButton());
-                layout.removeView(digitWithAttr.getRemoveDigitButton());
+                parentLayout.removeView(digitWithAttr.getDigitView());
+                parentLayout.removeView(digitWithAttr.getUpButton());
+                parentLayout.removeView(digitWithAttr.getDownButton());
+                parentLayout.removeView(digitWithAttr.getRemoveDigitButton());
                 drawElements.remove(i);
             }
             else{
