@@ -13,7 +13,7 @@ public class ListAdapterHelper {
         ctx = _ctx;
     }
 
-    SimpleExpandableListAdapter adapter;
+    private SimpleExpandableListAdapter adapter;
 
 
     SimpleExpandableListAdapter getAdapter(ListTreeDictionary dict) {

@@ -1,4 +1,4 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 28
@@ -6,7 +6,6 @@ android {
 
 
     defaultConfig {
-        applicationId "com.example.product_getter"
         minSdkVersion 22
         targetSdkVersion 28
         versionCode 1
@@ -32,6 +31,6 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    //implementation 'com.example.sql_lite_helper'
-    compileOnly project(':correct_price')
+    compile project(path: ':sql_lite_helper')
+    compile project(path: ':product')
 }

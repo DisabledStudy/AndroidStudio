@@ -9,7 +9,10 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.example.database.R;
-import com.example.sql_lite_helper.IOOperations.SqlLiteHelper;
+import com.example.sql_lite_helper.IOOperations.SqlLiteCreatorUpdater;
+
+import java.util.ArrayList;
+import java.util.TreeMap;
 
 public class MainActivity extends AppCompatActivity {
     final String LOG_DB_TAG = "DB";
@@ -19,7 +22,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SqlLiteHelper sqlDatabase = new SqlLiteHelper(this);
+        TreeMap<String, ArrayList<Pair<String, String>>> tablesToCreate = new TreeMap<String, ArrayList<Pair<String, String>>>();
+        ArrayList<Pair<String, String>> columnsAndType = new ArrayList<Pair<String, String>>();
+        columnsAndType.add(new Pair<>("Country","text"));
+        columnsAndType.add(new Pair<>("Rating","text"));
+        tablesToCreate.put("mytable", columnsAndType);
+
+        SqlLiteCreatorUpdater sqlDatabase = new SqlLiteCreatorUpdater(this, "myDb", tablesToCreate);
         SQLiteDatabase db = sqlDatabase.getWritableDatabase();
         Log.d(LOG_DB_TAG, "Data base prepared");
 
